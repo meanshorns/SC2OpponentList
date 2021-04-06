@@ -14,3 +14,6 @@ You'll need Python for this.
 Type add "username"  -without the quotes- hit enter
 Type their description/definition/whatever you want - hit enter
 now you can search for them.
+
+
+****Executable currently gets flagged by windows as a WACATAC virus and opens silently. Tryinng to figure out why. In the meantime you can follow the instructions above to run program****
