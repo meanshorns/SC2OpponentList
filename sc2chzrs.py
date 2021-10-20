@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 "A searchable database of Starcraft players"
-import json, os
+import json, os, signal
 
 # Globals
 DBFILE = os.path.join(os.environ['APPDATA'], "starcraftplayers.json")
@@ -26,9 +26,13 @@ class JsonDB():
     def add(self, playername, description):
         "add a new entry"
         self._db[playername.strip().lower()] = description.strip()
+        #Save after each operation because pyinstaller packaged executable doesn't forward termination signals to the code
+        self.save()
     def delete(self, playername):
         "delete an entry. raise KeyError if not found."
         del self._db[playername.strip().lower()]
+        #Save after each operation because pyinstaller packaged executable doesn't forward termination signals to the code
+        self.save()
     def search(self, playername):
         "search the database for playername and return a list of tuples: [(playername, description), ...]. an empty list is returned if there are no matches, a KeyError will not be raised."
         playername = playername.strip().lower()
@@ -41,10 +45,20 @@ class JsonDB():
         "Save the database"
         open(DBFILE, 'w').write(json.dumps(self._db))
 
+
+def shutdown(self):
+    database.save()
+
 if __name__ == "__main__":
     database = JsonDB()
     try:
-        while True:
+        run = True
+        while run:
+            #Catch different signals for shutting down the application call a handler to save the database
+            #For whatever reason pyinstaller packaged executable closed with the window close button doesn't end up here
+            signal.signal(signal.SIGTERM, shutdown)
+            signal.signal(signal.SIGINT, shutdown)
+            signal.signal(signal.SIGBREAK, shutdown)
             try: # unset arg so it can be detected
                 del arg
             except NameError:
